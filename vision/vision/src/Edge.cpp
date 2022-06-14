@@ -1,5 +1,5 @@
 #include <opencv.hpp>
-#include "Edge.h"
+#include "C:\Users\Li Jialiang\source\repos\xbotcon_vision\vision\vision\include\Edge.h"
 using namespace xbot;
 
 Edge::Edge()//默认构造函数
@@ -26,7 +26,7 @@ Edge::Edge(std::vector<cv::Point> &_contour){
 	std::vector<cv::Point> HullPoints(_contour.size());
 	cv::convexHull(cv::Mat(_contour), HullPoints, false);//寻找凸包
 	solidity = cv::contourArea(HullPoints) / area;//凸度
-	show_info();
+	//show_info();
 }
 
 void Edge::show_info() {

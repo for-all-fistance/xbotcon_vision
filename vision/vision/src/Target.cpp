@@ -1,5 +1,5 @@
 #include <opencv.hpp>
-#include "Target.h"
+#include "C:\Users\Li Jialiang\source\repos\xbotcon_vision\vision\vision\include\Target.h"
 #include <Eigen/Core>
 #include <Eigen/src/Core/DiagonalMatrix.h>
 #include <Eigen/Dense>  //稠密矩阵的代数运算
@@ -7,11 +7,14 @@
 #include <cmath>
 using namespace xbot;
 Armer::Armer(LightBar& lb1, LightBar& lb2){
-			cv::Rect2f r1 = lb1.minAreaRect.boundingRect();
-			cv::Rect2f r2 = lb2.minAreaRect.boundingRect();
+			cv::Rect2f r1 = lb1.minAreaRect.boundingRect2f();
+			cv::Rect2f r2 = lb2.minAreaRect.boundingRect2f();
 			rect = r1 | r2;
 			center = (rect.br() + rect.tl())/2;
 			std::cout << center << std::endl;
+}
+Target::Target(cv::Point2f c) {
+	center = c;
 }
 void Target::getTarget2dPosition() {
 	using namespace cv;
@@ -62,16 +65,15 @@ void Target::gravity_offset_composite()
 	center.y -= gravity_offset;
 }
 
+const int stateNum = 4;                                      //状态值10×1向量(x,y,weight,height,angle,△x,△y......)
+const int measureNum = 4;                                    //测量值10×1向量(x,y,weight,height,angle,△x,△y......)	                               
+cv::KalmanFilter KF(stateNum, measureNum, 0);					//创建一个卡尔曼滤波器，****无需重复定义****
+
 void Target::kalman_filter(Target* past_pos) {
-	const int stateNum = 4;                                      //状态值10×1向量(x,y,weight,height,angle,△x,△y......)
-	const int measureNum = 4;                                    //测量值10×1向量(x,y,weight,height,angle,△x,△y......)	                               
-	cv::KalmanFilter KF(stateNum, measureNum, 0);					//创建一个卡尔曼滤波器，****无需重复定义****
-
-
 		KF.transitionMatrix = (cv::Mat_<float>(4, 4) << 1, 0, 1, 0,
-			0, 1, 0, 1,
-			0, 0, 1, 0,
-			0, 0, 0, 1);                              //转移矩阵A
+														0, 1, 0, 1,
+														0, 0, 1, 0,
+														0, 0, 0, 1);                              //转移矩阵A
 		cv::Mat measurement = cv::Mat::zeros(measureNum, 1, CV_32F); //初始测量值x'(0)为0矩阵，因为后面要更新这个值，所以必须先定义
 		setIdentity(KF.measurementMatrix);       //测量矩阵H    setIdentity()创建初始值为单位阵
 		setIdentity(KF.processNoiseCov, cv::Scalar::all(1e-3));     //系统噪声方差矩阵Q  Q越大越相信观测值
@@ -86,6 +88,16 @@ void Target::kalman_filter(Target* past_pos) {
 		KF.correct(measurement);
 		//kalman prediction
 		KF.predict();
+		if (KF.statePre.at<float>(0) != KF.statePre.at<float>(0) || KF.statePre.at<float>(1) != KF.statePre.at<float>(1))
+		{
+			KF.statePre.at<float>(0) = this->center.x;
+			KF.statePre.at<float>(1) = this->center.y;
+		}
+		if (abs(KF.statePre.at<float>(0)) >1000 || abs(KF.statePre.at<float>(1)) >1000)
+		{
+			KF.statePre.at<float>(0) = this->center.x;
+			KF.statePre.at<float>(1) = this->center.y;
+		}
 		std::cout << "预测下一帧位于：" << cv::Point2f(KF.statePre.at<float>(0), KF.statePre.at<float>(1)) << std::endl;
 		this->point_pre = cv::Point2f(KF.statePre.at<float>(0), KF.statePre.at<float>(1));
 }
@@ -102,5 +114,5 @@ void Target::angle_solver()//计算角度
 	static double fy = cameraMatrix.at<double>(1, 1);
 	float rx = (center.x - cx) / fx;
 	float ry = (center.y - cy) / fy;
-	center=cv::Point2f(atan(rx) / CV_PI * 180, atan(ry) / CV_PI * 180);
+	point_angle=cv::Point2f(atan(rx) / CV_PI * 180, atan(ry) / CV_PI * 180);
 }

@@ -1,5 +1,5 @@
 #include <opencv.hpp>
-#include "Finder.h"
+#include "C:\Users\Li Jialiang\source\repos\xbotcon_vision\vision\vision\include\Finder.h"
 #include <mutex>
 #include <condition_variable>
 using namespace xbot;
@@ -7,8 +7,8 @@ using namespace xbot;
 const float MINAREARATE_ARMER = 1.0;//最小外接矩形与轮廓的面积比值在一定范围内
 const float MAXAREARATE_ARMER = 1.3;
 const float MINLENTHRATE_ARMER = 4;//长宽比大于一定值
-const float MAXLENTHRATE_ARMER = 5.5;//长宽比小于一定值
-const float MINSOLIDITY_ARMER = 1.03;//轮廓的凸度(Solidity)大于一定值
+const float MAXLENTHRATE_ARMER = 6;//长宽比小于一定值
+const float MINSOLIDITY_ARMER = 1.02;//轮廓的凸度(Solidity)大于一定值
 const float MAXSOLIDITY_ARMER = 1.2;
 
 const float MAX_ANGLE_ERROR = 15;//灯条angle误差最大值
@@ -42,7 +42,6 @@ void armer_Finder::find(xbot::Frame &image, std::vector<Target> &Target_containe
     using namespace cv;
     using namespace std;  
     vector<LightBar> lightBars;
-    cout << "\n" << image.edges.size() << endl;
     for (int i=0; i < image.edges.size(); ++i)
     {
         if (check(&image.edges[i]))
@@ -57,20 +56,18 @@ void armer_Finder::find(xbot::Frame &image, std::vector<Target> &Target_containe
     bool  paired = false;
     vector<LightBar>::iterator i_small ;
     vector<LightBar>::iterator j_small ;
-    int angle_error_small = 180;
+    int height_rate_small = 180;
     for (; now < lightBars.end(); ++now)
     {
         for (vector<LightBar>::iterator j = now + 1; j < lightBars.end(); ++j)
         {
             float angle_error = abs(now ->angle -  j->angle);
             float height_rate = now ->height /  j->height;
-            cout<<"angle_eror:"<<angle_error<<endl;
-            cout << "height_error:" << height_rate << endl;
             if (angle_error < MAX_ANGLE_ERROR&&height_rate<MAX_HEIGHT_RATE&&height_rate>MIN_HEIGHT_RATE)
             {
-                if (angle_error_small > angle_error)
+                if (height_rate_small > angle_error)
                 {
-                    angle_error_small = angle_error;
+                    height_rate_small = angle_error;
                     i_small = now;
                     j_small = j;
                 }
@@ -81,7 +78,6 @@ void armer_Finder::find(xbot::Frame &image, std::vector<Target> &Target_containe
     if (paired)
     {
         cout << "paired\n";
-        //lock_guard<mutex> lock_mtx(mtx);
         Target_container.push_back(Armer(*i_small, *j_small));
         cond_var.notify_one();
     }

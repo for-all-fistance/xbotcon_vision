@@ -11,6 +11,7 @@ namespace xbot
 	{
 		friend class DEBUGABS;
 	public:
+		Target(cv::Point2f c=cv::Point2f(640, 320));
 		void getTarget2dPosition();
 		virtual void distance_detection();
 		virtual void gravity_offset_composite();

@@ -1,4 +1,4 @@
-#include "Produce_consume.h"
+#include "C:\Users\Li Jialiang\source\repos\xbotcon_vision\vision\vision\include\Produce_consume.h"
 #include <mutex>
 #include <condition_variable>
 using namespace xbot;
@@ -32,6 +32,8 @@ void Consumer::consume(std::vector<Target>& Targets) {
 		targetptr->center = (targetptr->refer_imgPoint[1] + targetptr->refer_imgPoint[3]) / 2.0;
 		targetptr->gravity_offset_composite();
 		lock.unlock();
+		std::cout << targetptr->center << std::endl;
+		std::cout << (targetptr - 1)->center << std::endl;
 		targetptr->kalman_filter(targetptr - 1);
 	}
 }

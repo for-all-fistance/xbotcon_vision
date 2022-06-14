@@ -122,21 +122,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="vision\DEBUG.cpp" />
-    <ClCompile Include="vision\Edge.cpp" />
-    <ClCompile Include="vision\Finder.cpp" />
-    <ClCompile Include="vision\Image.cpp" />
+    <ClCompile Include="vision\src\DEBUG.cpp" />
+    <ClCompile Include="vision\src\Edge.cpp" />
+    <ClCompile Include="vision\src\Finder.cpp" />
+    <ClCompile Include="vision\src\Image.cpp" />
     <ClCompile Include="vision\main.cpp" />
-    <ClCompile Include="vision\Produce_Consume.cpp" />
-    <ClCompile Include="vision\Target.cpp" />
+    <ClCompile Include="vision\src\Produce_Consume.cpp" />
+    <ClCompile Include="vision\src\Target.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="vision\DEBUG.h" />
-    <ClInclude Include="vision\Edge.h" />
-    <ClInclude Include="vision\Finder.h" />
-    <ClInclude Include="vision\Image.h" />
-    <ClInclude Include="vision\Produce_consume.h" />
-    <ClInclude Include="vision\Target.h" />
+    <ClInclude Include="vision\include\DEBUG.h" />
+    <ClInclude Include="vision\include\Edge.h" />
+    <ClInclude Include="vision\include\Finder.h" />
+    <ClInclude Include="vision\include\Image.h" />
+    <ClInclude Include="vision\include\Produce_consume.h" />
+    <ClInclude Include="vision\include\Target.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
